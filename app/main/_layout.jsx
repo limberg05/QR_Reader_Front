@@ -1,11 +1,39 @@
 import { Tabs } from "expo-router";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const AppLayout = () => {
   return (
-    <Tabs>
-      <Tabs.Screen name="movements" />
-      <Tabs.Screen name="camera" />
-      <Tabs.Screen name="settings" />
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: "blue",
+      }}
+    >
+      <Tabs.Screen
+        name="movements"
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="list" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="camera"
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="camera" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="settings-sharp" size={24} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 };

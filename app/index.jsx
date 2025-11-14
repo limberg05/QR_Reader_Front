@@ -12,15 +12,8 @@ const LoginScreen = () => {
     try {
       logIn();
       console.log(isLoggedIn);
-      // console.log("inicio del handler");
-      // const userToken = "super token"; // logica para el login
-      // await AsyncStorage.setItem("userToken", userToken);
-      // console.log("token en el botón del handler");
-      // console.log(await AsyncStorage.getItem("userToken"));
     } catch (e) {
       console.log(e);
-    } finally {
-      console.log("se presionó el botón");
     }
   };
   return (

@@ -14,6 +14,8 @@
     "@gluestack-ui/utils": "^3.0.11",
     "@legendapp/motion": "^2.3.0",
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-vector-icons/evil-icons": "^12.4.0",
+    "@react-native-vector-icons/fontawesome6": "^12.3.0",
     "babel-plugin-module-resolver": "^5.0.2",
     "expo": "~54.0.12",
     "expo-constants": "~18.0.9",
