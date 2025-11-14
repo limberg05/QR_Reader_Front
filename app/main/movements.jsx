@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text } from "react-native";
 
-const Movement = () => {
+const Movements = () => {
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       <Text>Movement screen</Text>
@@ -9,4 +9,4 @@ const Movement = () => {
   );
 };
 
-export default Movement;
+export default Movements;
