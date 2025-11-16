@@ -1,7 +1,7 @@
 export const fetchProduct = async (id) => {
   try {
     const TOKEN =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc2MzI4NDM1NCwianRpIjoiMzg2YzUxMTQtNjAzNy00NjJiLWE3NGYtNjcxZTBmMjhjN2FmIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NjMyODQzNTQsImNzcmYiOiIxZjVlNjAwNC1hM2RhLTQ4NDQtOGNkZC03MDI4YjM4YmVhOGEiLCJleHAiOjE3NjMyODUyNTQsImlzQWRtaW4iOnRydWV9.1XVml5ULn2952OpBooJRUp_uOkrYEGn6u0yW44hsoqc';
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc2MzI4NTM3MiwianRpIjoiNTc4ZTUzMGEtNTlhZC00MjNmLWIyNGEtMTUwZDdiOTZkMDQ0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NjMyODUzNzIsImNzcmYiOiJkZWI5NWNiNi04OGIwLTQzYWYtODczYi1kMDU2Yzk3OGM2ZWUiLCJleHAiOjE3NjMyODYyNzIsImlzQWRtaW4iOnRydWV9.mgBYKdf2GnCJ7eHOemP2IPFNQeAZY213JC5nB9d8jC4';
 
     const response = await fetch(`http://192.168.1.105:8000/products/${id}`, {
       method: 'GET',
