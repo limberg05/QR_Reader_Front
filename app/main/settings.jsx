@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, Button } from "react-native";
-import { useUserState } from "../../hooks/authStore";
+import { useAuthStore } from "../../utils/authStore";
 
 const Settings = () => {
-  const logOut = useUserState((state) => state.logOut);
+  const logout = useAuthStore((state) => state.logout);
 
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
@@ -11,8 +11,7 @@ const Settings = () => {
       <Button
         title="LogOut"
         onPress={async () => {
-          console.log("logOut presionado");
-          logOut();
+          logout();
         }}
       />
     </View>
