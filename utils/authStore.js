@@ -34,7 +34,7 @@ export const useAuthStore = create(
 
           // Poner el token en las peticiones futuras
           api.defaults.headers.common["Authorization"] = `Bearer ${jwt}`;
-          console.log(jwt);
+          //console.log(jwt);
         } catch (err) {
           set({
             error: err.response?.data?.message || err.message,

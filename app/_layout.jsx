@@ -1,9 +1,5 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Stack, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { View, Text } from "react-native";
+import { Stack } from "expo-router";
 import { useAuthStore } from "../utils/authStore";
-import { api } from "../utils/api";
 
 const RootLayout = () => {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);

@@ -6,6 +6,9 @@ import {
   TouchableOpacity,
   Pressable,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,17 +24,25 @@ const LoginScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [localError, setLocalError] = useState(null);
+
+  useEffect(() => {
+    resetError();
+  }, [resetError]);
 
   const loginHandler = async () => {
+    if (loading) return; // prevent double submit
+    if (!email.trim() || !password) {
+      setLocalError("Ingrese correo y contraseña");
+      return;
+    }
+    setLocalError(null);
     try {
       await login(email, password);
     } catch (e) {
       console.log(e);
     }
   };
-  useEffect(() => {
-    resetError();
-  }, []);
 
   return (
     <SafeAreaProvider>
@@ -43,48 +54,71 @@ const LoginScreen = () => {
         </View>
       )}
       <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-        <View style={styles.container}>
-          <View style={styles.iconContainer}>
-            <Ionicons name="qr-code" size={40} color="#1E63EE" />
-          </View>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.container}>
+              <View style={styles.iconContainer}>
+                <Ionicons name="qr-code" size={40} color="#1E63EE" />
+              </View>
 
-          <Text style={styles.title}>Bienvenido</Text>
-          <Text style={styles.subtitle}>Inicia sesión con tu cuenta</Text>
+              <Text style={styles.title}>Bienvenido</Text>
+              <Text style={styles.subtitle}>Inicia sesión con tu cuenta</Text>
 
-          {/* Form */}
-          <Text style={styles.label}>Correo</Text>
-          <TextInput
-            placeholder="Ingresa tu correo"
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-          />
-
-          <Text style={styles.label}>Constraseña</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              placeholder="Ingresa tu contraseña"
-              secureTextEntry={!showPassword}
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-            />
-            <Pressable
-              style={styles.togglePassword}
-              onPress={() => setShowPassword(!showPassword)}
-            >
-              <Ionicons
-                name={showPassword ? "eye-off" : "eye"}
-                size={20}
-                color="#999"
+              {/* Form */}
+              <Text style={styles.label}>Correo</Text>
+              <TextInput
+                placeholder="Ingresa tu correo"
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                accessibilityLabel="Correo electrónico"
               />
-            </Pressable>
-          </View>
-          {error && <Text style={{ color: "red" }}>{error}</Text>}
-          <TouchableOpacity style={styles.button} onPress={loginHandler}>
-            <Text style={styles.buttonText}>Iniciar sesión</Text>
-          </TouchableOpacity>
-        </View>
+
+              <Text style={styles.label}>Contraseña</Text>
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  placeholder="Ingresa tu contraseña"
+                  secureTextEntry={!showPassword}
+                  style={styles.input}
+                  value={password}
+                  onChangeText={setPassword}
+                  accessibilityLabel="Contraseña"
+                />
+                <Pressable
+                  style={styles.togglePassword}
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <Ionicons
+                    name={showPassword ? "eye-off" : "eye"}
+                    size={20}
+                    color="#999"
+                  />
+                </Pressable>
+              </View>
+
+              {(localError || error) && (
+                <Text style={{ color: "red" }}>{localError || error}</Text>
+              )}
+
+              <TouchableOpacity
+                style={[styles.button, loading && styles.buttonDisabled]}
+                onPress={loginHandler}
+                disabled={loading}
+                accessibilityLabel="Iniciar sesión"
+              >
+                <Text style={styles.buttonText}>Iniciar sesión</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </SafeAreaProvider>
   );
