@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -6,35 +6,57 @@ import {
   ScrollView,
   TextInput,
   Image,
-} from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import * as MediaLibrary from 'expo-media-library';
-import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
-import { fetchProduct, createProduct } from '../../services/products';
-import '@/global.css';
+} from "react-native";
+import { CameraView, useCameraPermissions, BarcodeType } from "expo-camera";
+import * as MediaLibrary from "expo-media-library";
+import Constants from "expo-constants";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import { fetchProduct, createProduct } from "../../services/products";
+import "@/global.css";
+
+//Me daba error si ponía "all" tons mejor así
+const BARCODE_TYPES = [
+  "codabar",
+  "code39",
+  "code93",
+  "code128",
+  "datamatrix",
+  "ean8",
+  "ean13",
+  "itf14",
+  "pdf417",
+  "qr",
+  "upc_a",
+  "upc_e",
+];
 
 export default function QrReader() {
   const [permission, requestPermission] = useCameraPermissions();
-  const [facing, setFacing] = useState('back');
+  const [facing, setFacing] = useState("back");
   const [hasScanned, setHasScanned] = useState(false);
   const [lastScan, setLastScan] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
 
-  const [newName, setNewName] = useState('');
-  const [buyPrice, setBuyPrice] = useState('');
-  const [sellPrice, setSellPrice] = useState('');
-  const [stock, setStock] = useState('');
-  const [marca, setMarca] = useState('');
-  const [imgurl, setImgurl] = useState('');
+  const [newName, setNewName] = useState("");
+  const [buyPrice, setBuyPrice] = useState("");
+  const [sellPrice, setSellPrice] = useState("");
+  const [stock, setStock] = useState("");
+  const [marca, setMarca] = useState("");
+  const [imgurl, setImgurl] = useState("");
   const [isCreating, setIsCreating] = useState(false);
 
   const cameraRef = useRef(null);
 
   useEffect(() => {
     if (!permission?.granted) requestPermission();
-    MediaLibrary.requestPermissionsAsync();
+    // Avoid requesting media library "audio" permission while running in Expo Go
+    // (Expo Go doesn't include custom manifest permissions from config plugins).
+    // Only request media library permissions when running in a dev/client build.
+    if (Constants.appOwnership !== "expo") {
+      MediaLibrary.requestPermissionsAsync().catch(() => {});
+    }
   }, [permission]);
 
   const handleBarCodeScanned = async ({ type, data }) => {
@@ -49,7 +71,7 @@ export default function QrReader() {
       setError(null);
     } catch (err) {
       if (err.response?.status === 404) {
-        setError('NOT_FOUND');
+        setError("NOT_FOUND");
       } else {
         setError(err.message);
       }
@@ -62,7 +84,7 @@ export default function QrReader() {
   };
 
   const toggleCameraFacing = () =>
-    setFacing((current) => (current === 'back' ? 'front' : 'back'));
+    setFacing((current) => (current === "back" ? "front" : "back"));
 
   // -----------------------------
   // CREAR PRODUCTO
@@ -84,12 +106,12 @@ export default function QrReader() {
       setResult(created);
       setError(null);
 
-      setNewName('');
-      setBuyPrice('');
-      setSellPrice('');
-      setStock('');
-      setMarca('');
-      setImgurl('');
+      setNewName("");
+      setBuyPrice("");
+      setSellPrice("");
+      setStock("");
+      setMarca("");
+      setImgurl("");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -104,15 +126,15 @@ export default function QrReader() {
     <View
       className={
         darkMode
-          ? 'mt-4 bg-white/20 p-5 rounded-xl border border-white/20'
-          : 'mt-4 bg-gray-100 p-5 rounded-xl border border-gray-300'
+          ? "mt-4 bg-white/20 p-5 rounded-xl border border-white/20"
+          : "mt-4 bg-gray-100 p-5 rounded-xl border border-gray-300"
       }
     >
       <Text
         className={
           darkMode
-            ? 'text-white text-center mb-4 text-xl font-bold'
-            : 'text-gray-800 text-center mb-4 text-xl font-bold'
+            ? "text-white text-center mb-4 text-xl font-bold"
+            : "text-gray-800 text-center mb-4 text-xl font-bold"
         }
       >
         Producto encontrado
@@ -123,8 +145,8 @@ export default function QrReader() {
           <Text
             className={
               darkMode
-                ? 'text-white mb-1 capitalize'
-                : 'text-gray-700 mb-1 capitalize'
+                ? "text-white mb-1 capitalize"
+                : "text-gray-700 mb-1 capitalize"
             }
           >
             {key}:
@@ -133,8 +155,8 @@ export default function QrReader() {
           <View
             className={
               darkMode
-                ? 'bg-white rounded-lg px-3 py-2'
-                : 'bg-white rounded-lg px-3 py-2'
+                ? "bg-white rounded-lg px-3 py-2"
+                : "bg-white rounded-lg px-3 py-2"
             }
           >
             <Text className="text-black">{String(value)}</Text>
@@ -151,46 +173,46 @@ export default function QrReader() {
     <View
       className={
         darkMode
-          ? 'mt-4 bg-white/20 p-5 rounded-xl border border-white/20'
-          : 'mt-4 bg-gray-100 p-5 rounded-xl border border-gray-300'
+          ? "mt-4 bg-white/20 p-5 rounded-xl border border-white/20"
+          : "mt-4 bg-gray-100 p-5 rounded-xl border border-gray-300"
       }
     >
       <Text
         className={
           darkMode
-            ? 'text-white text-center mb-4 text-xl font-bold'
-            : 'text-gray-800 text-center mb-4 text-xl font-bold'
+            ? "text-white text-center mb-4 text-xl font-bold"
+            : "text-gray-800 text-center mb-4 text-xl font-bold"
         }
       >
         Producto no encontrado
       </Text>
 
       {[
-        { label: 'Nombre:', value: newName, setter: setNewName },
+        { label: "Nombre:", value: newName, setter: setNewName },
         {
-          label: 'Precio compra:',
+          label: "Precio compra:",
           value: buyPrice,
           setter: setBuyPrice,
           numeric: true,
         },
         {
-          label: 'Precio venta:',
+          label: "Precio venta:",
           value: sellPrice,
           setter: setSellPrice,
           numeric: true,
         },
-        { label: 'Stock:', value: stock, setter: setStock, numeric: true },
-        { label: 'Marca:', value: marca, setter: setMarca },
-        { label: 'Imagen URL:', value: imgurl, setter: setImgurl },
+        { label: "Stock:", value: stock, setter: setStock, numeric: true },
+        { label: "Marca:", value: marca, setter: setMarca },
+        { label: "Imagen URL:", value: imgurl, setter: setImgurl },
       ].map((field, index) => (
         <View className="mb-4" key={index}>
-          <Text className={darkMode ? 'text-white mb-1' : 'text-gray-700 mb-1'}>
+          <Text className={darkMode ? "text-white mb-1" : "text-gray-700 mb-1"}>
             {field.label}
           </Text>
 
           <TextInput
             className="bg-white rounded-lg px-3 py-2"
-            keyboardType={field.numeric ? 'numeric' : 'default'}
+            keyboardType={field.numeric ? "numeric" : "default"}
             value={field.value}
             onChangeText={field.setter}
           />
@@ -202,7 +224,7 @@ export default function QrReader() {
         onPress={handleCreateProduct}
       >
         <Text className="text-white text-center font-bold text-lg">
-          {isCreating ? 'Guardando...' : 'Agregar producto'}
+          {isCreating ? "Guardando..." : "Agregar producto"}
         </Text>
       </TouchableOpacity>
     </View>
@@ -238,10 +260,10 @@ export default function QrReader() {
             <Text className="text-xl font-bold text-white">Abrir cámara</Text>
           </TouchableOpacity>
 
-          <ScrollView style={{ width: '100%', marginTop: 20, maxHeight: 525 }}>
+          <ScrollView style={{ width: "100%", marginTop: 20, maxHeight: 525 }}>
             {result && <ProductView product={result} />}
-            {error === 'NOT_FOUND' && <AddProductForm />}
-            {error !== 'NOT_FOUND' && error && (
+            {error === "NOT_FOUND" && <AddProductForm />}
+            {error !== "NOT_FOUND" && error && (
               <Text className="text-red-500 mt-5 text-center">{error}</Text>
             )}
           </ScrollView>
@@ -262,7 +284,9 @@ export default function QrReader() {
           facing={facing}
           autoFocus="on"
           onBarcodeScanned={handleBarCodeScanned}
-          barcodeScannerSettings={{ barcodeTypes: ['all'] }}
+          barcodeScannerSettings={{
+            barcodeTypes: BARCODE_TYPES,
+          }}
         />
 
         <TouchableOpacity
@@ -288,8 +312,8 @@ export default function QrReader() {
             )}
 
             {result && <ProductView product={result} />}
-            {error === 'NOT_FOUND' && <AddProductForm />}
-            {error !== 'NOT_FOUND' && error && (
+            {error === "NOT_FOUND" && <AddProductForm />}
+            {error !== "NOT_FOUND" && error && (
               <Text className="text-red-400 mt-3 text-center">{error}</Text>
             )}
           </ScrollView>
