@@ -11,6 +11,7 @@ const AppLayout = () => {
         tabBarShowLabel: false,
         tabBarActiveTintColor: "blue",
       }}
+      initialRouteName="camera"
     >
       <Tabs.Protected guard={isAdmin}>
         <Tabs.Screen
