@@ -274,7 +274,7 @@ export default function QrReader() {
 
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={80}
+            keyboardVerticalOffset={140}
             style={{ width: '100%', marginTop: 20, maxHeight: 525 }}
           >
             <ScrollView>
@@ -318,7 +318,7 @@ export default function QrReader() {
 
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={80}
+          keyboardVerticalOffset={0}
           className="absolute bottom-0 w-full bg-black/50 pt-3 pb-8 px-5"
         >
           <ScrollView style={{ maxHeight: 300 }}>
