@@ -1,60 +1,57 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   ScrollView,
   TextInput,
-  Image,
-} from "react-native";
-import { CameraView, useCameraPermissions, BarcodeType } from "expo-camera";
-import * as MediaLibrary from "expo-media-library";
-import Constants from "expo-constants";
-import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-import { fetchProduct, createProduct } from "../../services/products";
-import "@/global.css";
+} from 'react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import * as MediaLibrary from 'expo-media-library';
+import Constants from 'expo-constants';
+import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
+import { fetchProduct, createProduct } from '../../services/products';
+import '@/global.css';
 
-//Me daba error si ponía "all" tons mejor así
 const BARCODE_TYPES = [
-  "codabar",
-  "code39",
-  "code93",
-  "code128",
-  "datamatrix",
-  "ean8",
-  "ean13",
-  "itf14",
-  "pdf417",
-  "qr",
-  "upc_a",
-  "upc_e",
+  'codabar',
+  'code39',
+  'code93',
+  'code128',
+  'datamatrix',
+  'ean8',
+  'ean13',
+  'itf14',
+  'pdf417',
+  'qr',
+  'upc_a',
+  'upc_e',
 ];
 
 export default function QrReader() {
   const [permission, requestPermission] = useCameraPermissions();
-  const [facing, setFacing] = useState("back");
+  const [facing, setFacing] = useState('back');
   const [hasScanned, setHasScanned] = useState(false);
   const [lastScan, setLastScan] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
 
-  const [newName, setNewName] = useState("");
-  const [buyPrice, setBuyPrice] = useState("");
-  const [sellPrice, setSellPrice] = useState("");
-  const [stock, setStock] = useState("");
-  const [marca, setMarca] = useState("");
-  const [imgurl, setImgurl] = useState("");
+  // FORM DATA
+  const [newName, setNewName] = useState('');
+  const [buyPrice, setBuyPrice] = useState('');
+  const [sellPrice, setSellPrice] = useState('');
+  const [stock, setStock] = useState('');
+  const [marca, setMarca] = useState('');
+  const [imgurl, setImgurl] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
   const cameraRef = useRef(null);
 
   useEffect(() => {
     if (!permission?.granted) requestPermission();
-    // Avoid requesting media library "audio" permission while running in Expo Go
-    // (Expo Go doesn't include custom manifest permissions from config plugins).
-    // Only request media library permissions when running in a dev/client build.
-    if (Constants.appOwnership !== "expo") {
+
+    if (Constants.appOwnership !== 'expo') {
       MediaLibrary.requestPermissionsAsync().catch(() => {});
     }
   }, [permission]);
@@ -71,24 +68,19 @@ export default function QrReader() {
       setError(null);
     } catch (err) {
       if (err.response?.status === 404) {
-        setError("NOT_FOUND");
+        setError('NOT_FOUND');
       } else {
         setError(err.message);
       }
       setResult(null);
     }
 
-    setTimeout(() => {
-      setHasScanned(false);
-    }, 1500);
+    setTimeout(() => setHasScanned(false), 1500);
   };
 
   const toggleCameraFacing = () =>
-    setFacing((current) => (current === "back" ? "front" : "back"));
+    setFacing((current) => (current === 'back' ? 'front' : 'back'));
 
-  // -----------------------------
-  // CREAR PRODUCTO
-  // -----------------------------
   const handleCreateProduct = async () => {
     try {
       setIsCreating(true);
@@ -106,12 +98,12 @@ export default function QrReader() {
       setResult(created);
       setError(null);
 
-      setNewName("");
-      setBuyPrice("");
-      setSellPrice("");
-      setStock("");
-      setMarca("");
-      setImgurl("");
+      setNewName('');
+      setBuyPrice('');
+      setSellPrice('');
+      setStock('');
+      setMarca('');
+      setImgurl('');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -119,46 +111,16 @@ export default function QrReader() {
     }
   };
 
-  // -----------------------------
-  // COMPONENTE: PRODUCTO MOSTRADO
-  // -----------------------------
-  const ProductView = ({ product, darkMode }) => (
-    <View
-      className={
-        darkMode
-          ? "mt-4 bg-white/20 p-5 rounded-xl border border-white/20"
-          : "mt-4 bg-gray-100 p-5 rounded-xl border border-gray-300"
-      }
-    >
-      <Text
-        className={
-          darkMode
-            ? "text-white text-center mb-4 text-xl font-bold"
-            : "text-gray-800 text-center mb-4 text-xl font-bold"
-        }
-      >
+  const ProductView = ({ product }) => (
+    <View className="mt-4 bg-gray-100 p-5 rounded-xl border border-gray-300">
+      <Text className="text-gray-800 text-center mb-4 text-xl font-bold">
         Producto encontrado
       </Text>
 
       {Object.entries(product).map(([key, value]) => (
         <View className="mb-4" key={key}>
-          <Text
-            className={
-              darkMode
-                ? "text-white mb-1 capitalize"
-                : "text-gray-700 mb-1 capitalize"
-            }
-          >
-            {key}:
-          </Text>
-
-          <View
-            className={
-              darkMode
-                ? "bg-white rounded-lg px-3 py-2"
-                : "bg-white rounded-lg px-3 py-2"
-            }
-          >
+          <Text className="text-gray-700 mb-1 capitalize">{key}:</Text>
+          <View className="bg-white rounded-lg px-3 py-2">
             <Text className="text-black">{String(value)}</Text>
           </View>
         </View>
@@ -166,73 +128,106 @@ export default function QrReader() {
     </View>
   );
 
-  //-------------------------------------------------------------------
-  // COMPONENTE: FORMULARIO AGREGAR PRODUCTO
-  //-------------------------------------------------------------------
-  const AddProductForm = ({ darkMode }) => (
-    <View
-      className={
-        darkMode
-          ? "mt-4 bg-white/20 p-5 rounded-xl border border-white/20"
-          : "mt-4 bg-gray-100 p-5 rounded-xl border border-gray-300"
-      }
-    >
-      <Text
-        className={
-          darkMode
-            ? "text-white text-center mb-4 text-xl font-bold"
-            : "text-gray-800 text-center mb-4 text-xl font-bold"
-        }
-      >
-        Producto no encontrado
-      </Text>
+  // ----------------------------------------
+  // FORMULARIO SIN RE-RENDERS (FIX REAL)
+  // ----------------------------------------
 
-      {[
-        { label: "Nombre:", value: newName, setter: setNewName },
-        {
-          label: "Precio compra:",
-          value: buyPrice,
-          setter: setBuyPrice,
-          numeric: true,
-        },
-        {
-          label: "Precio venta:",
-          value: sellPrice,
-          setter: setSellPrice,
-          numeric: true,
-        },
-        { label: "Stock:", value: stock, setter: setStock, numeric: true },
-        { label: "Marca:", value: marca, setter: setMarca },
-        { label: "Imagen URL:", value: imgurl, setter: setImgurl },
-      ].map((field, index) => (
-        <View className="mb-4" key={index}>
-          <Text className={darkMode ? "text-white mb-1" : "text-gray-700 mb-1"}>
-            {field.label}
-          </Text>
+  const AddProductForm = () => {
+    let _newName = newName;
+    let _buyPrice = buyPrice;
+    let _sellPrice = sellPrice;
+    let _stock = stock;
+    let _marca = marca;
+    let _imgurl = imgurl;
 
+    return (
+      <View className="mt-4 bg-gray-100 p-5 rounded-xl border border-gray-300">
+        <Text className="text-gray-800 text-center mb-4 text-xl font-bold">
+          Producto no encontrado
+        </Text>
+
+        {/* --- Nombre --- */}
+        <View className="mb-4">
+          <Text className="text-gray-700 mb-1">Nombre:</Text>
           <TextInput
             className="bg-white rounded-lg px-3 py-2"
-            keyboardType={field.numeric ? "numeric" : "default"}
-            value={field.value}
-            onChangeText={field.setter}
+            defaultValue={newName}
+            onChangeText={(v) => (_newName = v)}
+            onEndEditing={() => setNewName(_newName)}
           />
         </View>
-      ))}
 
-      <TouchableOpacity
-        className="bg-green-600 py-3 rounded-lg mt-2"
-        onPress={handleCreateProduct}
-      >
-        <Text className="text-white text-center font-bold text-lg">
-          {isCreating ? "Guardando..." : "Agregar producto"}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
+        {/* --- Precio compra --- */}
+        <View className="mb-4">
+          <Text className="text-gray-700 mb-1">Precio compra:</Text>
+          <TextInput
+            className="bg-white rounded-lg px-3 py-2"
+            keyboardType="numeric"
+            defaultValue={buyPrice}
+            onChangeText={(v) => (_buyPrice = v)}
+            onEndEditing={() => setBuyPrice(_buyPrice)}
+          />
+        </View>
 
-  //-------------------------------------------------------------------
+        {/* --- Precio venta --- */}
+        <View className="mb-4">
+          <Text className="text-gray-700 mb-1">Precio venta:</Text>
+          <TextInput
+            className="bg-white rounded-lg px-3 py-2"
+            keyboardType="numeric"
+            defaultValue={sellPrice}
+            onChangeText={(v) => (_sellPrice = v)}
+            onEndEditing={() => setSellPrice(_sellPrice)}
+          />
+        </View>
+
+        {/* --- Stock --- */}
+        <View className="mb-4">
+          <Text className="text-gray-700 mb-1">Stock:</Text>
+          <TextInput
+            className="bg-white rounded-lg px-3 py-2"
+            keyboardType="numeric"
+            defaultValue={stock}
+            onChangeText={(v) => (_stock = v)}
+            onEndEditing={() => setStock(_stock)}
+          />
+        </View>
+
+        {/* --- Marca --- */}
+        <View className="mb-4">
+          <Text className="text-gray-700 mb-1">Marca:</Text>
+          <TextInput
+            className="bg-white rounded-lg px-3 py-2"
+            defaultValue={marca}
+            onChangeText={(v) => (_marca = v)}
+            onEndEditing={() => setMarca(_marca)}
+          />
+        </View>
+
+        {/* --- Imagen URL --- */}
+        <View className="mb-4">
+          <Text className="text-gray-700 mb-1">Imagen URL:</Text>
+          <TextInput
+            className="bg-white rounded-lg px-3 py-2"
+            defaultValue={imgurl}
+            onChangeText={(v) => (_imgurl = v)}
+            onEndEditing={() => setImgurl(_imgurl)}
+          />
+        </View>
+
+        <TouchableOpacity
+          className="bg-green-600 py-3 rounded-lg mt-2"
+          onPress={handleCreateProduct}
+        >
+          <Text className="text-white text-center font-bold text-lg">
+            {isCreating ? 'Guardando...' : 'Agregar producto'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   // PERMISOS
-  //-------------------------------------------------------------------
   if (!permission?.granted) {
     return (
       <View>
@@ -244,9 +239,7 @@ export default function QrReader() {
     );
   }
 
-  //-------------------------------------------------------------------
   // VISTA SIN CÁMARA
-  //-------------------------------------------------------------------
   if (!showCamera) {
     return (
       <GluestackUIProvider>
@@ -260,10 +253,12 @@ export default function QrReader() {
             <Text className="text-xl font-bold text-white">Abrir cámara</Text>
           </TouchableOpacity>
 
-          <ScrollView style={{ width: "100%", marginTop: 20, maxHeight: 525 }}>
+          <ScrollView style={{ width: '100%', marginTop: 20, maxHeight: 525 }}>
             {result && <ProductView product={result} />}
-            {error === "NOT_FOUND" && <AddProductForm />}
-            {error !== "NOT_FOUND" && error && (
+
+            {error === 'NOT_FOUND' && <AddProductForm />}
+
+            {error !== 'NOT_FOUND' && error && (
               <Text className="text-red-500 mt-5 text-center">{error}</Text>
             )}
           </ScrollView>
@@ -272,9 +267,7 @@ export default function QrReader() {
     );
   }
 
-  //-------------------------------------------------------------------
   // VISTA CON CÁMARA
-  //-------------------------------------------------------------------
   return (
     <GluestackUIProvider>
       <View style={{ flex: 1 }}>
@@ -284,9 +277,7 @@ export default function QrReader() {
           facing={facing}
           autoFocus="on"
           onBarcodeScanned={handleBarCodeScanned}
-          barcodeScannerSettings={{
-            barcodeTypes: BARCODE_TYPES,
-          }}
+          barcodeScannerSettings={{ barcodeTypes: BARCODE_TYPES }}
         />
 
         <TouchableOpacity
@@ -312,8 +303,10 @@ export default function QrReader() {
             )}
 
             {result && <ProductView product={result} />}
-            {error === "NOT_FOUND" && <AddProductForm />}
-            {error !== "NOT_FOUND" && error && (
+
+            {error === 'NOT_FOUND' && <AddProductForm />}
+
+            {error !== 'NOT_FOUND' && error && (
               <Text className="text-red-400 mt-3 text-center">{error}</Text>
             )}
           </ScrollView>
