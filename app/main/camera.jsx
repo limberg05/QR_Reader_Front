@@ -5,6 +5,8 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
@@ -37,7 +39,6 @@ export default function QrReader() {
   const [error, setError] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
 
-  // FORM DATA
   const [newName, setNewName] = useState('');
   const [buyPrice, setBuyPrice] = useState('');
   const [sellPrice, setSellPrice] = useState('');
@@ -46,11 +47,17 @@ export default function QrReader() {
   const [imgurl, setImgurl] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
+  let tempName = newName;
+  let tempBuy = buyPrice;
+  let tempSell = sellPrice;
+  let tempStock = stock;
+  let tempMarca = marca;
+  let tempImg = imgurl;
+
   const cameraRef = useRef(null);
 
   useEffect(() => {
     if (!permission?.granted) requestPermission();
-
     if (Constants.appOwnership !== 'expo') {
       MediaLibrary.requestPermissionsAsync().catch(() => {});
     }
@@ -111,15 +118,34 @@ export default function QrReader() {
     }
   };
 
-  const ProductView = ({ product }) => (
-    <View className="mt-4 bg-gray-100 p-5 rounded-xl border border-gray-300">
-      <Text className="text-gray-800 text-center mb-4 text-xl font-bold">
+  const ProductView = ({ product, darkMode }) => (
+    <View
+      className={
+        darkMode
+          ? 'mt-4 bg-white/20 p-5 rounded-xl border border-white/20'
+          : 'mt-4 bg-gray-100 p-5 rounded-xl border border-gray-300'
+      }
+    >
+      <Text
+        className={
+          darkMode
+            ? 'text-white text-center mb-4 text-xl font-bold'
+            : 'text-gray-800 text-center mb-4 text-xl font-bold'
+        }
+      >
         Producto encontrado
       </Text>
 
       {Object.entries(product).map(([key, value]) => (
         <View className="mb-4" key={key}>
-          <Text className="text-gray-700 mb-1 capitalize">{key}:</Text>
+          <Text
+            className={
+              darkMode ? 'text-white mb-1 capitalize' : 'text-gray-700 mb-1'
+            }
+          >
+            {key}:
+          </Text>
+
           <View className="bg-white rounded-lg px-3 py-2">
             <Text className="text-black">{String(value)}</Text>
           </View>
@@ -128,106 +154,100 @@ export default function QrReader() {
     </View>
   );
 
-  // ----------------------------------------
-  // FORMULARIO SIN RE-RENDERS (FIX REAL)
-  // ----------------------------------------
+  const AddProductForm = ({ darkMode }) => (
+    <View
+      className={
+        darkMode
+          ? 'mt-4 bg-white/20 p-5 rounded-xl border border-white/20'
+          : 'mt-4 bg-gray-100 p-5 rounded-xl border border-gray-300'
+      }
+    >
+      <Text
+        className={
+          darkMode
+            ? 'text-white text-center mb-4 text-xl font-bold'
+            : 'text-gray-800 text-center mb-4 text-xl font-bold'
+        }
+      >
+        Producto no encontrado
+      </Text>
 
-  const AddProductForm = () => {
-    let _newName = newName;
-    let _buyPrice = buyPrice;
-    let _sellPrice = sellPrice;
-    let _stock = stock;
-    let _marca = marca;
-    let _imgurl = imgurl;
-
-    return (
-      <View className="mt-4 bg-gray-100 p-5 rounded-xl border border-gray-300">
-        <Text className="text-gray-800 text-center mb-4 text-xl font-bold">
-          Producto no encontrado
+      <View>
+        <Text className={darkMode ? 'text-white mb-1' : 'text-gray-700 mb-1'}>
+          Nombre:
         </Text>
-
-        {/* --- Nombre --- */}
-        <View className="mb-4">
-          <Text className="text-gray-700 mb-1">Nombre:</Text>
-          <TextInput
-            className="bg-white rounded-lg px-3 py-2"
-            defaultValue={newName}
-            onChangeText={(v) => (_newName = v)}
-            onEndEditing={() => setNewName(_newName)}
-          />
-        </View>
-
-        {/* --- Precio compra --- */}
-        <View className="mb-4">
-          <Text className="text-gray-700 mb-1">Precio compra:</Text>
-          <TextInput
-            className="bg-white rounded-lg px-3 py-2"
-            keyboardType="numeric"
-            defaultValue={buyPrice}
-            onChangeText={(v) => (_buyPrice = v)}
-            onEndEditing={() => setBuyPrice(_buyPrice)}
-          />
-        </View>
-
-        {/* --- Precio venta --- */}
-        <View className="mb-4">
-          <Text className="text-gray-700 mb-1">Precio venta:</Text>
-          <TextInput
-            className="bg-white rounded-lg px-3 py-2"
-            keyboardType="numeric"
-            defaultValue={sellPrice}
-            onChangeText={(v) => (_sellPrice = v)}
-            onEndEditing={() => setSellPrice(_sellPrice)}
-          />
-        </View>
-
-        {/* --- Stock --- */}
-        <View className="mb-4">
-          <Text className="text-gray-700 mb-1">Stock:</Text>
-          <TextInput
-            className="bg-white rounded-lg px-3 py-2"
-            keyboardType="numeric"
-            defaultValue={stock}
-            onChangeText={(v) => (_stock = v)}
-            onEndEditing={() => setStock(_stock)}
-          />
-        </View>
-
-        {/* --- Marca --- */}
-        <View className="mb-4">
-          <Text className="text-gray-700 mb-1">Marca:</Text>
-          <TextInput
-            className="bg-white rounded-lg px-3 py-2"
-            defaultValue={marca}
-            onChangeText={(v) => (_marca = v)}
-            onEndEditing={() => setMarca(_marca)}
-          />
-        </View>
-
-        {/* --- Imagen URL --- */}
-        <View className="mb-4">
-          <Text className="text-gray-700 mb-1">Imagen URL:</Text>
-          <TextInput
-            className="bg-white rounded-lg px-3 py-2"
-            defaultValue={imgurl}
-            onChangeText={(v) => (_imgurl = v)}
-            onEndEditing={() => setImgurl(_imgurl)}
-          />
-        </View>
-
-        <TouchableOpacity
-          className="bg-green-600 py-3 rounded-lg mt-2"
-          onPress={handleCreateProduct}
-        >
-          <Text className="text-white text-center font-bold text-lg">
-            {isCreating ? 'Guardando...' : 'Agregar producto'}
-          </Text>
-        </TouchableOpacity>
+        <TextInput
+          className="bg-white rounded-lg px-3 py-2"
+          onChangeText={(val) => (tempName = val)}
+          onEndEditing={() => setNewName(tempName)}
+          defaultValue={newName}
+        />
       </View>
-    );
-  };
 
-  // PERMISOS
+      <View className="mt-4">
+        <Text className="text-gray-700 mb-1">Precio compra:</Text>
+        <TextInput
+          className="bg-white rounded-lg px-3 py-2"
+          keyboardType="numeric"
+          onChangeText={(v) => (tempBuy = v)}
+          onEndEditing={() => setBuyPrice(tempBuy)}
+          defaultValue={buyPrice}
+        />
+      </View>
+
+      <View className="mt-4">
+        <Text className="text-gray-700 mb-1">Precio venta:</Text>
+        <TextInput
+          className="bg-white rounded-lg px-3 py-2"
+          keyboardType="numeric"
+          onChangeText={(v) => (tempSell = v)}
+          onEndEditing={() => setSellPrice(tempSell)}
+          defaultValue={sellPrice}
+        />
+      </View>
+
+      <View className="mt-4">
+        <Text className="text-gray-700 mb-1">Stock:</Text>
+        <TextInput
+          className="bg-white rounded-lg px-3 py-2"
+          keyboardType="numeric"
+          onChangeText={(v) => (tempStock = v)}
+          onEndEditing={() => setStock(tempStock)}
+          defaultValue={stock}
+        />
+      </View>
+
+      <View className="mt-4">
+        <Text className="text-gray-700 mb-1">Marca:</Text>
+        <TextInput
+          className="bg-white rounded-lg px-3 py-2"
+          onChangeText={(v) => (tempMarca = v)}
+          onEndEditing={() => setMarca(tempMarca)}
+          defaultValue={marca}
+        />
+      </View>
+
+      <View className="mt-4">
+        <Text className="text-gray-700 mb-1">Imagen URL:</Text>
+        <TextInput
+          className="bg-white rounded-lg px-3 py-2"
+          onChangeText={(v) => (tempImg = v)}
+          onEndEditing={() => setImgurl(tempImg)}
+          defaultValue={imgurl}
+        />
+      </View>
+
+      <TouchableOpacity
+        className="bg-green-600 py-3 rounded-lg mt-5"
+        onPress={handleCreateProduct}
+      >
+        <Text className="text-white text-center font-bold text-lg">
+          {isCreating ? 'Guardando...' : 'Agregar producto'}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   if (!permission?.granted) {
     return (
       <View>
@@ -239,7 +259,6 @@ export default function QrReader() {
     );
   }
 
-  // VISTA SIN CÁMARA
   if (!showCamera) {
     return (
       <GluestackUIProvider>
@@ -253,21 +272,24 @@ export default function QrReader() {
             <Text className="text-xl font-bold text-white">Abrir cámara</Text>
           </TouchableOpacity>
 
-          <ScrollView style={{ width: '100%', marginTop: 20, maxHeight: 525 }}>
-            {result && <ProductView product={result} />}
-
-            {error === 'NOT_FOUND' && <AddProductForm />}
-
-            {error !== 'NOT_FOUND' && error && (
-              <Text className="text-red-500 mt-5 text-center">{error}</Text>
-            )}
-          </ScrollView>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={80}
+            style={{ width: '100%', marginTop: 20, maxHeight: 525 }}
+          >
+            <ScrollView>
+              {result && <ProductView product={result} />}
+              {error === 'NOT_FOUND' && <AddProductForm />}
+              {error !== 'NOT_FOUND' && error && (
+                <Text className="text-red-500 mt-5 text-center">{error}</Text>
+              )}
+            </ScrollView>
+          </KeyboardAvoidingView>
         </View>
       </GluestackUIProvider>
     );
   }
 
-  // VISTA CON CÁMARA
   return (
     <GluestackUIProvider>
       <View style={{ flex: 1 }}>
@@ -294,7 +316,11 @@ export default function QrReader() {
           <Text className="text-white text-lg">Cerrar</Text>
         </TouchableOpacity>
 
-        <View className="absolute bottom-0 w-full bg-black/50 pt-3 pb-8 px-5">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={80}
+          className="absolute bottom-0 w-full bg-black/50 pt-3 pb-8 px-5"
+        >
           <ScrollView style={{ maxHeight: 300 }}>
             {lastScan && (
               <Text className="text-white text-center mb-3 text-lg">
@@ -303,14 +329,12 @@ export default function QrReader() {
             )}
 
             {result && <ProductView product={result} />}
-
             {error === 'NOT_FOUND' && <AddProductForm />}
-
             {error !== 'NOT_FOUND' && error && (
               <Text className="text-red-400 mt-3 text-center">{error}</Text>
             )}
           </ScrollView>
-        </View>
+        </KeyboardAvoidingView>
       </View>
     </GluestackUIProvider>
   );
