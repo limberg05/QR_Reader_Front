@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { secureStorage } from "./secureStorage";
 import { api } from "./api";
+import { jwtDecode } from "jwt-decode";
 
 async function wakeUpAPI() {
   try {
@@ -19,6 +20,7 @@ export const useAuthStore = create(
       loading: false,
       error: null,
       isLoggedIn: false, //isLoggedIn es para el stack protector
+      isAdmin: false,
 
       //Login que a demás maneja el token para que esté en todas las requests de una
       login: async (email, password) => {
@@ -29,8 +31,14 @@ export const useAuthStore = create(
 
           const res = await api.post("/users/login", { email, password });
           const jwt = res.data.access_token;
+          const decoded = jwtDecode(jwt);
 
-          set({ token: jwt, loading: false, isLoggedIn: true });
+          set({
+            token: jwt,
+            loading: false,
+            isLoggedIn: true,
+            isAdmin: decoded.isAdmin || false,
+          });
 
           // Poner el token en las peticiones futuras
           api.defaults.headers.common["Authorization"] = `Bearer ${jwt}`;
@@ -44,7 +52,7 @@ export const useAuthStore = create(
         }
       },
       logout: () => {
-        set({ token: null, isLoggedIn: false });
+        set({ token: null, isLoggedIn: false, isAdmin: false });
         delete api.defaults.headers.common["Authorization"];
       },
       resetError: () => {
