@@ -55,6 +55,7 @@ export const useAuthStore = create(
       },
 
       resetError: () => set({ error: null }),
+      resetLoading: () => set({ loading: false }),
     }),
     {
       name: "auth-token",

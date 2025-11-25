@@ -24,7 +24,7 @@ const Settings = () => {
       <SafeAreaView className="flex-1 bg-gray-100 dark:bg-black">
         <View className="px-5 py-6">
           <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            Settings
+            Configuración
           </Text>
 
           {/* ---- USER INFO CARD ---- */}

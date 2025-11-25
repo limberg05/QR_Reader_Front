@@ -8,8 +8,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Button,
 } from "react-native";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../utils/authStore";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -20,6 +21,7 @@ const LoginScreen = () => {
   const loading = useAuthStore((state) => state.loading);
   const error = useAuthStore((state) => state.error);
   const resetError = useAuthStore((state) => state.resetError);
+  const resetLoading = useAuthStore((state) => state.resetLoading);
 
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -93,6 +95,7 @@ const LoginScreen = () => {
                 <Pressable
                   onPress={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-3 p-1"
+                  style={{ paddingTop: 0 }}
                 >
                   <Ionicons
                     name={showPassword ? "eye-off" : "eye"}
