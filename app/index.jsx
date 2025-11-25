@@ -8,6 +8,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
@@ -47,85 +49,98 @@ const LoginScreen = () => {
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      <SafeAreaView className="flex-1 bg-white">
+      <SafeAreaView className=" bg-white" style={{ flex: 1 }}>
         <KeyboardAvoidingView
-          className="flex-1"
+          style={{ flex: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
         >
-          <ScrollView
-            className="flex-1"
-            contentContainerStyle={{ flexGrow: 1 }}
-            keyboardShouldPersistTaps="handled"
-          >
-            <View className="flex-1 px-6 justify-center">
-              {/* Icon */}
-              <View className="bg-blue-100 p-5 rounded-full self-center mb-6">
-                <Ionicons name="qr-code" size={40} color="#1E63EE" />
-              </View>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <ScrollView
+              contentContainerStyle={{
+                flexGrow: 1,
+                justifyContent: "center",
+                paddingTop: 80,
+              }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              <View className="flex-1 px-6 justify-center py-8">
+                {/* Icon */}
+                <View className="bg-blue-100 p-5 rounded-full self-center mb-6">
+                  <Ionicons name="qr-code" size={40} color="#1E63EE" />
+                </View>
 
-              {/* Title */}
-              <Text className="text-3xl font-bold text-center">Bienvenido</Text>
-              <Text className="text-gray-500 text-center mb-8">
-                Inicia sesión con tu cuenta
-              </Text>
-
-              {/* Email */}
-              <Text className="font-semibold mb-1">Correo</Text>
-              <TextInput
-                placeholder="Ingresa tu correo"
-                className="h-12 border border-gray-300 rounded-xl px-3 bg-gray-50 mb-4"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-
-              {/* Password */}
-              <Text className="font-semibold mb-1">Contraseña</Text>
-              <View className="relative">
-                <TextInput
-                  placeholder="Ingresa tu contraseña"
-                  secureTextEntry={!showPassword}
-                  className="h-12 border border-gray-300 rounded-xl px-3 bg-gray-50 mb-4"
-                  value={password}
-                  onChangeText={setPassword}
-                />
-                <Pressable
-                  onPress={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 p-1"
-                >
-                  <Ionicons
-                    name={showPassword ? "eye-off" : "eye"}
-                    size={22}
-                    color="#999"
-                  />
-                </Pressable>
-              </View>
-
-              {(localError || error) && (
-                <Text className="text-red-500 text-center mb-2">
-                  {localError || error}
+                {/* Title */}
+                <Text className="text-3xl font-bold text-center">
+                  Bienvenido
                 </Text>
-              )}
+                <Text className="text-gray-500 text-center mb-8">
+                  Inicia sesión con tu cuenta
+                </Text>
 
-              {/* Button - igual al estilo movements */}
-              <TouchableOpacity
-                disabled={loading}
-                onPress={loginHandler}
-                className={`h-14 rounded-xl justify-center items-center mt-3 ${
-                  loading ? "bg-blue-300" : "bg-blue-600"
-                }`}
-              >
-                {loading ? (
-                  <ActivityIndicator color="white" />
-                ) : (
-                  <Text className="text-white text-lg font-bold">
-                    Iniciar sesión
+                {/* Email */}
+                <Text className="font-semibold mb-1">Correo</Text>
+                <TextInput
+                  placeholder="Ingresa tu correo"
+                  className="h-12 border border-gray-300 rounded-xl px-3 bg-gray-50 mb-4"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  returnKeyType="next"
+                />
+
+                {/* Password */}
+                <Text className="font-semibold mb-1">Contraseña</Text>
+                <View className="relative">
+                  <TextInput
+                    placeholder="Ingresa tu contraseña"
+                    secureTextEntry={!showPassword}
+                    className="h-12 border border-gray-300 rounded-xl px-3 bg-gray-50 mb-4"
+                    value={password}
+                    onChangeText={setPassword}
+                    returnKeyType="done"
+                    onSubmitEditing={loginHandler}
+                  />
+                  <Pressable
+                    onPress={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 p-1"
+                    style={{ padding: 1 }}
+                  >
+                    <Ionicons
+                      name={showPassword ? "eye-off" : "eye"}
+                      size={22}
+                      color="#999"
+                    />
+                  </Pressable>
+                </View>
+
+                {(localError || error) && (
+                  <Text className="text-red-500 text-center mb-2">
+                    {localError || error}
                   </Text>
                 )}
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
+
+                {/* Button - igual al estilo movements */}
+                <TouchableOpacity
+                  disabled={loading}
+                  onPress={loginHandler}
+                  className={`h-14 rounded-xl justify-center items-center mt-3 ${
+                    loading ? "bg-blue-300" : "bg-blue-600"
+                  }`}
+                >
+                  {loading ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <Text className="text-white text-lg font-bold">
+                      Iniciar sesión
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </SafeAreaProvider>

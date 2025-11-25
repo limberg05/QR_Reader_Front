@@ -18,6 +18,7 @@
         "backgroundImage": "./assets/splash-icon.png",
         "monochromeImage": "./assets/splash-icon.png"
       },
+      "softwareKeyboardLayoutMode": "pan",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "permissions": [
