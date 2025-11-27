@@ -47,75 +47,71 @@ const Movements = () => {
     }
 
     return (
-      <SafeAreaProvider>
-        <SafeAreaView>
-          <View>
-            <Text className="text-gray-800 text-center mb-4 text-xl font-bold">
-              Movimientos encontrados
+      <View>
+        <Text className="text-gray-800 text-center mb-4 text-xl font-bold">
+          Movimientos encontrados
+        </Text>
+
+        {movements.map((movement, index) => (
+          <View
+            key={index}
+            className="mt-4 bg-white p-4 rounded-2xl border border-gray-200 ml-4 mr-4"
+          >
+            <Text className="text-blue-600 text-lg font-semibold mb-3">
+              Movimiento #{movement.id}
             </Text>
 
-            {movements.map((movement, index) => (
-              <View
-                key={index}
-                className="mt-4 bg-white p-4 rounded-2xl border border-gray-200 ml-4 mr-4"
-              >
-                <Text className="text-blue-600 text-lg font-semibold mb-3">
-                  Movimiento #{movement.id}
-                </Text>
-
-                <View className="flex-row flex-wrap justify-between">
-                  <View className="w-[48%] space-y-2">
-                    <View>
-                      <Text className="text-gray-500 text-xs">Barcode</Text>
-                      <Text className="text-base font-medium">
-                        {movement.barcode}
-                      </Text>
-                    </View>
-
-                    <View>
-                      <Text className="text-gray-500 text-xs">Quantity</Text>
-                      <Text
-                        className={
-                          movement.quantity < 0
-                            ? "text-red-500 font-semibold"
-                            : "text-green-600 font-semibold"
-                        }
-                      >
-                        {movement.quantity}
-                      </Text>
-                    </View>
-                  </View>
-
-                  <View className="w-[48%] space-y-2">
-                    <View>
-                      <Text className="text-gray-500 text-xs">User</Text>
-                      <Text className="text-base font-medium">
-                        {movement.user_id}
-                      </Text>
-                    </View>
-
-                    <View>
-                      <Text className="text-gray-500 text-xs">Notes</Text>
-                      <Text className="text-base">{movement.notes ?? "—"}</Text>
-                    </View>
-                  </View>
+            <View className="flex-row flex-wrap justify-between">
+              <View className="w-[48%] space-y-2">
+                <View>
+                  <Text className="text-gray-500 text-xs">Barcode</Text>
+                  <Text className="text-base font-medium">
+                    {movement.barcode}
+                  </Text>
                 </View>
 
-                <Text className="text-gray-500 text-xs mt-4">
-                  {movement.timestamp}
-                </Text>
+                <View>
+                  <Text className="text-gray-500 text-xs">Quantity</Text>
+                  <Text
+                    className={
+                      movement.quantity < 0
+                        ? "text-red-500 font-semibold"
+                        : "text-green-600 font-semibold"
+                    }
+                  >
+                    {movement.quantity}
+                  </Text>
+                </View>
               </View>
-            ))}
+
+              <View className="w-[48%] space-y-2">
+                <View>
+                  <Text className="text-gray-500 text-xs">User</Text>
+                  <Text className="text-base font-medium">
+                    {movement.user_id}
+                  </Text>
+                </View>
+
+                <View>
+                  <Text className="text-gray-500 text-xs">Notes</Text>
+                  <Text className="text-base">{movement.notes ?? "—"}</Text>
+                </View>
+              </View>
+            </View>
+
+            <Text className="text-gray-500 text-xs mt-4">
+              {movement.timestamp}
+            </Text>
           </View>
-        </SafeAreaView>
-      </SafeAreaProvider>
+        ))}
+      </View>
     );
   };
 
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      <SafeAreaView className="flex-1">
+      <SafeAreaView className="flex-1 pt-6">
         <View className="flex-1">
           <ScrollView>
             {result && <MovementsView movements={result} />}

@@ -21,8 +21,7 @@ export const useAuthStore = create(
       error: null,
       isLoggedIn: false,
       isAdmin: false,
-
-      hydrated: false, // 🔥 nuevo
+      hydrated: false,
 
       login: async (email, password) => {
         set({ loading: true, error: null });
@@ -55,18 +54,25 @@ export const useAuthStore = create(
       },
 
       resetError: () => set({ error: null }),
+
+      setHydrated: () => set({ hydrated: true }), // Helper method
     }),
     {
       name: "auth-token",
       storage: createJSONStorage(() => secureStorage),
       onRehydrateStorage: () => (state) => {
-        // 🔥 Cuando Zustand termina de cargar desde storage:
-        state.set({ hydrated: true });
+        // state is the actual state object after rehydration
+        if (state) {
+          // Mark as hydrated using the store's set method
+          useAuthStore.setState({ hydrated: true });
 
-        // 🔥 Si hay token guardado, reestablecer Authorization
-        const token = state.get().token;
-        if (token)
-          api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+          // If there's a token, restore the Authorization header
+          if (state.token) {
+            api.defaults.headers.common[
+              "Authorization"
+            ] = `Bearer ${state.token}`;
+          }
+        }
       },
     }
   )
