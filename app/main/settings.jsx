@@ -21,29 +21,29 @@ const Settings = () => {
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      <SafeAreaView className="flex-1 bg-gray-100 dark:bg-black">
+      <SafeAreaView className="flex-1 bg-gray-100">
         <View className="px-5 py-6">
-          <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          <Text className="text-2xl font-bold text-gray-900 mb-6">
             Settings
           </Text>
 
           {/* ---- USER INFO CARD ---- */}
-          <View className="bg-white dark:bg-white/10 rounded-2xl border border-gray-200 dark:border-white/20 p-5">
-            <Text className="text-gray-900 dark:text-white text-lg font-semibold mb-2">
+          <View className="bg-white rounded-2xl border border-gray-200 p-5">
+            <Text className="text-gray-900 text-lg font-semibold mb-2">
               Información del Usuario
             </Text>
 
-            <Text className="text-gray-700 dark:text-white/80">
+            <Text className="text-gray-700">
               <Text className="font-semibold">Email: </Text>
               {userInfo.email || "No disponible"}
             </Text>
 
-            <Text className="text-gray-700 dark:text-white/80 mt-2">
+            <Text className="text-gray-700 mt-2">
               <Text className="font-semibold">ID: </Text>
               {userInfo.sub || "No disponible"}
             </Text>
 
-            <Text className="text-gray-700 dark:text-white/80 mt-2">
+            <Text className="text-gray-700 mt-2">
               <Text className="font-semibold">Rol: </Text>
               {isAdmin ? "Administrador" : "Usuario"}
             </Text>

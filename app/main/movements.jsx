@@ -11,7 +11,7 @@ import { fetchMovements } from "../../services/movements";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 
-const Movements = ({ darkMode }) => {
+const Movements = () => {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -41,9 +41,7 @@ const Movements = ({ darkMode }) => {
     if (!movements || movements.length === 0) {
       return (
         <View className="mt-4">
-          <Text className={darkMode ? "text-white" : "text-gray-800"}>
-            No se encontraron Movimientos.
-          </Text>
+          <Text className="text-gray-800">No se encontraron Movimientos.</Text>
         </View>
       );
     }
@@ -52,50 +50,30 @@ const Movements = ({ darkMode }) => {
       <SafeAreaProvider>
         <SafeAreaView>
           <View>
-            <Text
-              className={
-                darkMode
-                  ? "text-white text-center mb-4 text-xl font-bold"
-                  : "text-gray-800 text-center mb-4 text-xl font-bold"
-              }
-            >
+            <Text className="text-gray-800 text-center mb-4 text-xl font-bold">
               Movimientos encontrados
             </Text>
 
             {movements.map((movement, index) => (
               <View
                 key={index}
-                className={
-                  darkMode
-                    ? "mt-4 bg-white/10 p-4 rounded-2xl border border-white/10 ml-4 mr-4"
-                    : "mt-4 bg-white p-4 rounded-2xl border border-gray-200 ml-4 mr-4"
-                }
+                className="mt-4 bg-white p-4 rounded-2xl border border-gray-200 ml-4 mr-4"
               >
-                <Text
-                  className={
-                    darkMode
-                      ? "text-blue-400 text-lg font-semibold mb-3"
-                      : "text-blue-600 text-lg font-semibold mb-3"
-                  }
-                >
+                <Text className="text-blue-600 text-lg font-semibold mb-3">
                   Movimiento #{movement.id}
                 </Text>
 
                 <View className="flex-row flex-wrap justify-between">
                   <View className="w-[48%] space-y-2">
                     <View>
-                      <Text className="text-gray-500 text-xs dark:text-white/70">
-                        Barcode
-                      </Text>
-                      <Text className="text-base font-medium dark:text-white">
+                      <Text className="text-gray-500 text-xs">Barcode</Text>
+                      <Text className="text-base font-medium">
                         {movement.barcode}
                       </Text>
                     </View>
 
                     <View>
-                      <Text className="text-gray-500 text-xs dark:text-white/70">
-                        Quantity
-                      </Text>
+                      <Text className="text-gray-500 text-xs">Quantity</Text>
                       <Text
                         className={
                           movement.quantity < 0
@@ -110,32 +88,20 @@ const Movements = ({ darkMode }) => {
 
                   <View className="w-[48%] space-y-2">
                     <View>
-                      <Text className="text-gray-500 text-xs dark:text-white/70">
-                        User
-                      </Text>
-                      <Text className="text-base font-medium dark:text-white">
+                      <Text className="text-gray-500 text-xs">User</Text>
+                      <Text className="text-base font-medium">
                         {movement.user_id}
                       </Text>
                     </View>
 
                     <View>
-                      <Text className="text-gray-500 text-xs dark:text-white/70">
-                        Notes
-                      </Text>
-                      <Text className="text-base dark:text-white">
-                        {movement.notes ?? "—"}
-                      </Text>
+                      <Text className="text-gray-500 text-xs">Notes</Text>
+                      <Text className="text-base">{movement.notes ?? "—"}</Text>
                     </View>
                   </View>
                 </View>
 
-                <Text
-                  className={
-                    darkMode
-                      ? "text-white/60 text-xs mt-4"
-                      : "text-gray-500 text-xs mt-4"
-                  }
-                >
+                <Text className="text-gray-500 text-xs mt-4">
                   {movement.timestamp}
                 </Text>
               </View>
