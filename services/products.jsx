@@ -19,3 +19,16 @@ export const createProduct = async (product) => {
     throw err;
   }
 };
+
+export const updateStock = async (barcode, newStock, notes = '') => {
+  try {
+    const res = await api.put(`/products/${barcode}/stock`, {
+      newStock,
+      notes,
+    });
+    return res.data;
+  } catch (err) {
+    console.log('ERROR BACKEND:', err.response?.data); // <-- importante
+    throw err;
+  }
+};

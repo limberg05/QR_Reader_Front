@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,54 +6,77 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-} from "react-native";
-import { CameraView, useCameraPermissions } from "expo-camera";
-import * as MediaLibrary from "expo-media-library";
-import Constants from "expo-constants";
-import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { fetchProduct, createProduct } from "../../services/products";
-import ProductView from "../../components/ProductView";
-import AddProductForm from "../../components/AddProductForm";
-import "@/global.css";
+  TextInput,
+} from 'react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import * as MediaLibrary from 'expo-media-library';
+import Constants from 'expo-constants';
+import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  fetchProduct,
+  createProduct,
+  updateStock,
+} from '../../services/products';
+import ProductView from '../../components/ProductView';
+import AddProductForm from '../../components/AddProductForm';
+import '@/global.css';
 
 const BARCODE_TYPES = [
-  "codabar",
-  "code39",
-  "code93",
-  "code128",
-  "datamatrix",
-  "ean8",
-  "ean13",
-  "itf14",
-  "pdf417",
-  "qr",
-  "upc_a",
-  "upc_e",
+  'codabar',
+  'code39',
+  'code93',
+  'code128',
+  'datamatrix',
+  'ean8',
+  'ean13',
+  'itf14',
+  'pdf417',
+  'qr',
+  'upc_a',
+  'upc_e',
 ];
 
 export default function QrReader() {
   const [permission, requestPermission] = useCameraPermissions();
-  const [facing, setFacing] = useState("back");
+  const [facing, setFacing] = useState('back');
   const [hasScanned, setHasScanned] = useState(false);
   const [lastScan, setLastScan] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
 
-  const [newName, setNewName] = useState("");
-  const [buyPrice, setBuyPrice] = useState("");
-  const [sellPrice, setSellPrice] = useState("");
-  const [stock, setStock] = useState("");
-  const [marca, setMarca] = useState("");
-  const [imgurl, setImgurl] = useState("");
+  const [newName, setNewName] = useState('');
+  const [buyPrice, setBuyPrice] = useState('');
+  const [sellPrice, setSellPrice] = useState('');
+  const [stock, setStock] = useState('');
+  const [marca, setMarca] = useState('');
+  const [imgurl, setImgurl] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+
+  const [showStockModal, setShowStockModal] = useState(false);
+  const [newStockValue, setNewStockValue] = useState('');
+  const [notes, setNotes] = useState('');
+
+  const [toastMessage, setToastMessage] = useState(null);
+  const [toastType, setToastType] = useState('success');
+
+  const [showProductPanel, setShowProductPanel] = useState(true);
 
   const cameraRef = useRef(null);
 
+  const showToast = (message, type = 'success') => {
+    setToastMessage(message);
+    setToastType(type);
+
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 2500);
+  };
+
   useEffect(() => {
     if (!permission?.granted) requestPermission();
-    if (Constants.appOwnership !== "expo") {
+    if (Constants.appOwnership !== 'expo') {
       MediaLibrary.requestPermissionsAsync().catch(() => {});
     }
   }, [permission]);
@@ -67,25 +90,27 @@ export default function QrReader() {
     try {
       const productData = await fetchProduct(data);
       setResult(productData);
+      setShowProductPanel(true);
       setError(null);
     } catch (err) {
       if (err.response?.status === 404) {
-        setError("NOT_FOUND");
+        setError('NOT_FOUND');
       } else {
         setError(err.message);
       }
       setResult(null);
+      setShowProductPanel(false);
     }
 
     setTimeout(() => setHasScanned(false), 1500);
   };
 
   const toggleCameraFacing = () =>
-    setFacing((current) => (current === "back" ? "front" : "back"));
+    setFacing((current) => (current === 'back' ? 'front' : 'back'));
 
   const handleCreateProduct = async () => {
     if (!newName.trim() || !buyPrice || !sellPrice) {
-      setError("Por favor completa los campos requeridos");
+      setError('Por favor completa los campos requeridos');
       return;
     }
 
@@ -93,30 +118,64 @@ export default function QrReader() {
       setIsCreating(true);
       setError(null);
 
-      const created = await createProduct({
+      await createProduct({
         barcode: lastScan?.data,
         name: newName,
         buyPrice: Number(buyPrice),
         sellPrice: Number(sellPrice),
         stock: Number(stock) || 0,
         marca,
-        imgurl,
+        imageUrl: imgurl,
       });
 
-      setResult(created);
+      const refreshed = await fetchProduct(lastScan.data);
+      setResult(refreshed);
+      setShowProductPanel(true);
       setError(null);
 
-      // Reset form
-      setNewName("");
-      setBuyPrice("");
-      setSellPrice("");
-      setStock("");
-      setMarca("");
-      setImgurl("");
-    } catch (err) {
-      setError(err.message || "Error al crear producto");
+      setNewName('');
+      setBuyPrice('');
+      setSellPrice('');
+      setStock('');
+      setMarca('');
+      setImgurl('');
+    } catch {
+      setError('Error al crear producto');
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  const openStockUpdater = () => {
+    setNewStockValue(String(result?.stock ?? ''));
+    setNotes('');
+    setShowStockModal(true);
+  };
+
+  const handleUpdateStock = async () => {
+    try {
+      if (!newStockValue.trim()) {
+        showToast('Ingresa el nuevo stock', 'error');
+        return;
+      }
+
+      await updateStock(result.barcode, Number(newStockValue), notes);
+
+      const refreshed = await fetchProduct(result.barcode);
+      setResult(refreshed);
+
+      setNewStockValue('');
+      setNotes('');
+
+      setShowStockModal(false);
+      setShowProductPanel(false);
+
+      setError(null);
+
+      showToast('Stock actualizado correctamente', 'success');
+    } catch (err) {
+      setError('Error actualizando stock');
+      showToast('Error actualizando el stock', 'error');
     }
   };
 
@@ -149,15 +208,13 @@ export default function QrReader() {
       <SafeAreaView className="flex-1 bg-gray-50">
         <KeyboardAvoidingView
           className="flex-1"
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           <ScrollView
             className="flex-1"
             contentContainerStyle={{ padding: 20 }}
             keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
           >
-            {/* Header */}
             <View className="items-center mb-6">
               <View className="bg-blue-100 p-4 rounded-full mb-3">
                 <Ionicons name="qr-code" size={40} color="#2563eb" />
@@ -170,9 +227,8 @@ export default function QrReader() {
               </Text>
             </View>
 
-            {/* Botón abrir cámara */}
             <TouchableOpacity
-              className="bg-blue-600 py-4 rounded-xl flex-row items-center justify-center mb-6 shadow-sm"
+              className="bg-blue-600 py-4 rounded-xl flex-row items-center justify-center mb-6"
               onPress={() => setShowCamera(true)}
             >
               <Ionicons name="camera" size={24} color="white" />
@@ -181,9 +237,14 @@ export default function QrReader() {
               </Text>
             </TouchableOpacity>
 
-            {/* Resultados */}
-            {result && <ProductView product={result} />}
-            {error === "NOT_FOUND" && (
+            {showProductPanel && result && (
+              <ProductView
+                product={result}
+                onUpdateStockPress={openStockUpdater}
+              />
+            )}
+
+            {error === 'NOT_FOUND' && (
               <AddProductForm
                 newName={newName}
                 setNewName={setNewName}
@@ -202,20 +263,99 @@ export default function QrReader() {
                 onCreateProduct={handleCreateProduct}
               />
             )}
-            {error !== "NOT_FOUND" && error && (
+
+            {error !== 'NOT_FOUND' && error && (
               <View className="bg-red-50 border border-red-200 rounded-xl p-4 mt-4">
                 <Text className="text-red-600 text-center">{error}</Text>
               </View>
             )}
           </ScrollView>
         </KeyboardAvoidingView>
+
+        {showStockModal && (
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            className="absolute bottom-0 left-0 right-0"
+            style={{ zIndex: 50 }}
+          >
+            <View className="bg-white p-6 rounded-t-3xl shadow-2xl">
+              <Text className="text-lg font-bold mb-3 text-gray-800">
+                Actualizar Stock
+              </Text>
+
+              <TextInput
+                value={newStockValue}
+                onChangeText={setNewStockValue}
+                keyboardType="numeric"
+                className="bg-gray-100 px-4 py-3 rounded-xl mb-4 border border-gray-300"
+                placeholder="Nuevo stock"
+              />
+
+              <TextInput
+                value={notes}
+                onChangeText={setNotes}
+                className="bg-gray-100 px-4 py-3 rounded-xl mb-4 border border-gray-300"
+                placeholder="Notas (opcional)"
+              />
+
+              <TouchableOpacity
+                className="bg-blue-600 py-4 rounded-xl"
+                onPress={handleUpdateStock}
+              >
+                <Text className="text-center text-white font-bold">
+                  Guardar cambios
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="mt-3 py-3 rounded-xl"
+                onPress={() => setShowStockModal(false)}
+              >
+                <Text className="text-center text-gray-600 font-bold">
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </KeyboardAvoidingView>
+        )}
+
+        {toastMessage && (
+          <View
+            style={{
+              position: 'absolute',
+              bottom: 40,
+              left: 20,
+              right: 20,
+              backgroundColor: toastType === 'success' ? '#16a34a' : '#dc2626',
+              paddingVertical: 14,
+              paddingHorizontal: 16,
+              borderRadius: 12,
+              zIndex: 9999,
+              shadowColor: '#000',
+              shadowOpacity: 0.25,
+              shadowOffset: { width: 0, height: 2 },
+              shadowRadius: 4,
+              elevation: 6,
+            }}
+          >
+            <Text
+              style={{
+                color: 'white',
+                fontWeight: 'bold',
+                textAlign: 'center',
+                fontSize: 16,
+              }}
+            >
+              {toastMessage}
+            </Text>
+          </View>
+        )}
       </SafeAreaView>
     );
   }
 
   return (
     <View className="flex-1 bg-black">
-      {/* Cámara - Pantalla completa */}
       <CameraView
         ref={cameraRef}
         style={{ flex: 1 }}
@@ -225,7 +365,6 @@ export default function QrReader() {
         barcodeScannerSettings={{ barcodeTypes: BARCODE_TYPES }}
       />
 
-      {/* Botones superiores - Sobre la cámara */}
       <SafeAreaView
         className="absolute top-0 left-0 right-0"
         style={{ zIndex: 10 }}
@@ -247,12 +386,11 @@ export default function QrReader() {
         </View>
       </SafeAreaView>
 
-      {/* Panel inferior con resultados */}
-      {(lastScan || result || error) && (
+      {showProductPanel && (lastScan || result || error) && (
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl"
-          style={{ maxHeight: "70%", zIndex: 20 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl"
+          style={{ maxHeight: '70%', zIndex: 20 }}
         >
           <View className="w-12 h-1 bg-gray-300 rounded-full self-center mt-3 mb-2" />
 
@@ -260,7 +398,6 @@ export default function QrReader() {
             className="px-5"
             contentContainerStyle={{ paddingBottom: 40 }}
             keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
           >
             {lastScan && (
               <View className="bg-gray-100 rounded-xl p-3 mb-4 mt-2">
@@ -273,8 +410,14 @@ export default function QrReader() {
               </View>
             )}
 
-            {result && <ProductView product={result} />}
-            {error === "NOT_FOUND" && (
+            {result && (
+              <ProductView
+                product={result}
+                onUpdateStockPress={openStockUpdater}
+              />
+            )}
+
+            {error === 'NOT_FOUND' && (
               <AddProductForm
                 newName={newName}
                 setNewName={setNewName}
@@ -293,13 +436,93 @@ export default function QrReader() {
                 onCreateProduct={handleCreateProduct}
               />
             )}
-            {error !== "NOT_FOUND" && error && (
+
+            {error !== 'NOT_FOUND' && error && (
               <View className="bg-red-50 border border-red-200 rounded-xl p-4 mt-4">
                 <Text className="text-red-600 text-center">{error}</Text>
               </View>
             )}
           </ScrollView>
         </KeyboardAvoidingView>
+      )}
+
+      {showStockModal && (
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          className="absolute bottom-0 left-0 right-0"
+          style={{ zIndex: 50 }}
+        >
+          <View className="bg-white p-6 rounded-t-3xl shadow-2xl">
+            <Text className="text-lg font-bold mb-3 text-gray-800">
+              Actualizar Stock
+            </Text>
+
+            <TextInput
+              value={newStockValue}
+              onChangeText={setNewStockValue}
+              keyboardType="numeric"
+              className="bg-gray-100 px-4 py-3 rounded-xl mb-4 border border-gray-300"
+              placeholder="Nuevo stock"
+            />
+
+            <TextInput
+              value={notes}
+              onChangeText={setNotes}
+              className="bg-gray-100 px-4 py-3 rounded-xl mb-4 border border-gray-300"
+              placeholder="Notas (opcional)"
+            />
+
+            <TouchableOpacity
+              className="bg-blue-600 py-4 rounded-xl"
+              onPress={handleUpdateStock}
+            >
+              <Text className="text-center text-white font-bold">
+                Guardar cambios
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="mt-3 py-3 rounded-xl"
+              onPress={() => setShowStockModal(false)}
+            >
+              <Text className="text-center text-gray-600 font-bold">
+                Cancelar
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      )}
+
+      {toastMessage && (
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 40,
+            left: 20,
+            right: 20,
+            backgroundColor: toastType === 'success' ? '#16a34a' : '#dc2626',
+            paddingVertical: 14,
+            paddingHorizontal: 16,
+            borderRadius: 12,
+            zIndex: 9999,
+            shadowColor: '#000',
+            shadowOpacity: 0.25,
+            shadowOffset: { width: 0, height: 2 },
+            shadowRadius: 4,
+            elevation: 6,
+          }}
+        >
+          <Text
+            style={{
+              color: 'white',
+              fontWeight: 'bold',
+              textAlign: 'center',
+              fontSize: 16,
+            }}
+          >
+            {toastMessage}
+          </Text>
+        </View>
       )}
     </View>
   );
