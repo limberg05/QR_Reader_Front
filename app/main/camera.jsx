@@ -20,6 +20,8 @@ import {
 } from '../../services/products';
 import ProductView from '../../components/ProductView';
 import AddProductForm from '../../components/AddProductForm';
+import { useProductStore } from '../../utils/productStore';
+
 import '@/global.css';
 
 const BARCODE_TYPES = [
@@ -65,6 +67,10 @@ export default function QrReader() {
 
   const cameraRef = useRef(null);
 
+  const setSelectedBarcode = useProductStore(
+    (state) => state.setSelectedBarcode
+  );
+
   const showToast = (message, type = 'success') => {
     setToastMessage(message);
     setToastType(type);
@@ -83,15 +89,16 @@ export default function QrReader() {
 
   const handleBarCodeScanned = async ({ type, data }) => {
     if (hasScanned) return;
-
+    setShowProductPanel(true);
     setHasScanned(true);
     setLastScan({ type, data });
 
     try {
       const productData = await fetchProduct(data);
       setResult(productData);
-      setShowProductPanel(true);
       setError(null);
+
+      setSelectedBarcode(data);
     } catch (err) {
       if (err.response?.status === 404) {
         setError('NOT_FOUND');
@@ -99,7 +106,6 @@ export default function QrReader() {
         setError(err.message);
       }
       setResult(null);
-      setShowProductPanel(false);
     }
 
     setTimeout(() => setHasScanned(false), 1500);
