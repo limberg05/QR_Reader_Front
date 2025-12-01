@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import { useAuthStore } from "../utils/authStore";
+import "@/global.css";
 
 const RootLayout = () => {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
