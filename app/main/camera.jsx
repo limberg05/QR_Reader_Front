@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -7,61 +7,62 @@ import {
   KeyboardAvoidingView,
   Platform,
   TextInput,
-} from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import * as MediaLibrary from 'expo-media-library';
-import Constants from 'expo-constants';
-import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+  Alert,
+} from "react-native";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import * as MediaLibrary from "expo-media-library";
+import Constants from "expo-constants";
+import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   fetchProduct,
   createProduct,
   updateStock,
-} from '../../services/products';
-import ProductView from '../../components/ProductView';
-import AddProductForm from '../../components/AddProductForm';
-import { useProductStore } from '../../utils/productStore';
+} from "../../services/products";
+import ProductView from "../../components/ProductView";
+import AddProductForm from "../../components/AddProductForm";
+import { useProductStore } from "../../utils/productStore";
 
-import '@/global.css';
+import "@/global.css";
 
 const BARCODE_TYPES = [
-  'codabar',
-  'code39',
-  'code93',
-  'code128',
-  'datamatrix',
-  'ean8',
-  'ean13',
-  'itf14',
-  'pdf417',
-  'qr',
-  'upc_a',
-  'upc_e',
+  "codabar",
+  "code39",
+  "code93",
+  "code128",
+  "datamatrix",
+  "ean8",
+  "ean13",
+  "itf14",
+  "pdf417",
+  "qr",
+  "upc_a",
+  "upc_e",
 ];
 
 export default function QrReader() {
   const [permission, requestPermission] = useCameraPermissions();
-  const [facing, setFacing] = useState('back');
+  const [facing, setFacing] = useState("back");
   const [hasScanned, setHasScanned] = useState(false);
   const [lastScan, setLastScan] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
 
-  const [newName, setNewName] = useState('');
-  const [buyPrice, setBuyPrice] = useState('');
-  const [sellPrice, setSellPrice] = useState('');
-  const [stock, setStock] = useState('');
-  const [marca, setMarca] = useState('');
-  const [imgurl, setImgurl] = useState('');
+  const [newName, setNewName] = useState("");
+  const [buyPrice, setBuyPrice] = useState("");
+  const [sellPrice, setSellPrice] = useState("");
+  const [stock, setStock] = useState("");
+  const [marca, setMarca] = useState("");
+  const [imgurl, setImgurl] = useState("");
   const [isCreating, setIsCreating] = useState(false);
 
   const [showStockModal, setShowStockModal] = useState(false);
-  const [newStockValue, setNewStockValue] = useState('');
-  const [notes, setNotes] = useState('');
+  const [newStockValue, setNewStockValue] = useState("");
+  const [notes, setNotes] = useState("");
 
   const [toastMessage, setToastMessage] = useState(null);
-  const [toastType, setToastType] = useState('success');
+  const [toastType, setToastType] = useState("success");
 
   const [showProductPanel, setShowProductPanel] = useState(true);
 
@@ -71,7 +72,7 @@ export default function QrReader() {
     (state) => state.setSelectedBarcode
   );
 
-  const showToast = (message, type = 'success') => {
+  const showToast = (message, type = "success") => {
     setToastMessage(message);
     setToastType(type);
 
@@ -82,7 +83,7 @@ export default function QrReader() {
 
   useEffect(() => {
     if (!permission?.granted) requestPermission();
-    if (Constants.appOwnership !== 'expo') {
+    if (Constants.appOwnership !== "expo") {
       MediaLibrary.requestPermissionsAsync().catch(() => {});
     }
   }, [permission]);
@@ -101,7 +102,7 @@ export default function QrReader() {
       setSelectedBarcode(data);
     } catch (err) {
       if (err.response?.status === 404) {
-        setError('NOT_FOUND');
+        setError("NOT_FOUND");
       } else {
         setError(err.message);
       }
@@ -112,11 +113,11 @@ export default function QrReader() {
   };
 
   const toggleCameraFacing = () =>
-    setFacing((current) => (current === 'back' ? 'front' : 'back'));
+    setFacing((current) => (current === "back" ? "front" : "back"));
 
   const handleCreateProduct = async () => {
     if (!newName.trim() || !buyPrice || !sellPrice) {
-      setError('Por favor completa los campos requeridos');
+      setError("Por favor completa los campos requeridos");
       return;
     }
 
@@ -139,29 +140,29 @@ export default function QrReader() {
       setShowProductPanel(true);
       setError(null);
 
-      setNewName('');
-      setBuyPrice('');
-      setSellPrice('');
-      setStock('');
-      setMarca('');
-      setImgurl('');
+      setNewName("");
+      setBuyPrice("");
+      setSellPrice("");
+      setStock("");
+      setMarca("");
+      setImgurl("");
     } catch {
-      setError('Error al crear producto');
+      setError("Error al crear producto");
     } finally {
       setIsCreating(false);
     }
   };
 
   const openStockUpdater = () => {
-    setNewStockValue(String(result?.stock ?? ''));
-    setNotes('');
+    setNewStockValue(String(result?.stock ?? ""));
+    setNotes("");
     setShowStockModal(true);
   };
 
   const handleUpdateStock = async () => {
     try {
       if (!newStockValue.trim()) {
-        showToast('Ingresa el nuevo stock', 'error');
+        showToast("Ingresa el nuevo stock", "error");
         return;
       }
 
@@ -170,18 +171,18 @@ export default function QrReader() {
       const refreshed = await fetchProduct(result.barcode);
       setResult(refreshed);
 
-      setNewStockValue('');
-      setNotes('');
+      setNewStockValue("");
+      setNotes("");
 
       setShowStockModal(false);
       setShowProductPanel(false);
 
       setError(null);
 
-      showToast('Stock actualizado correctamente', 'success');
+      showToast("Stock actualizado correctamente", "success");
     } catch (err) {
-      setError('Error actualizando stock');
-      showToast('Error actualizando el stock', 'error');
+      setError("Error actualizando stock");
+      showToast("Error actualizando el stock", "error");
     }
   };
 
@@ -200,7 +201,17 @@ export default function QrReader() {
           </Text>
           <TouchableOpacity
             className="bg-blue-600 px-6 py-3 rounded-xl"
-            onPress={requestPermission}
+            onPress={() => {
+              if (permission?.canAskAgain === false) {
+                Alert.alert(
+                  "Permiso bloqueado",
+                  "Debes habilitar la cámara manualmente desde los Ajustes del dispositivo."
+                );
+                return;
+              }
+
+              requestPermission();
+            }}
           >
             <Text className="text-white font-bold text-base">Dar permisos</Text>
           </TouchableOpacity>
@@ -214,7 +225,7 @@ export default function QrReader() {
       <SafeAreaView className="flex-1 bg-gray-50">
         <KeyboardAvoidingView
           className="flex-1"
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
           <ScrollView
             className="flex-1"
@@ -250,7 +261,7 @@ export default function QrReader() {
               />
             )}
 
-            {error === 'NOT_FOUND' && (
+            {error === "NOT_FOUND" && (
               <AddProductForm
                 newName={newName}
                 setNewName={setNewName}
@@ -270,7 +281,7 @@ export default function QrReader() {
               />
             )}
 
-            {error !== 'NOT_FOUND' && error && (
+            {error !== "NOT_FOUND" && error && (
               <View className="bg-red-50 border border-red-200 rounded-xl p-4 mt-4">
                 <Text className="text-red-600 text-center">{error}</Text>
               </View>
@@ -280,7 +291,7 @@ export default function QrReader() {
 
         {showStockModal && (
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
             className="absolute bottom-0 left-0 right-0"
             style={{ zIndex: 50 }}
           >
@@ -328,16 +339,16 @@ export default function QrReader() {
         {toastMessage && (
           <View
             style={{
-              position: 'absolute',
+              position: "absolute",
               bottom: 40,
               left: 20,
               right: 20,
-              backgroundColor: toastType === 'success' ? '#16a34a' : '#dc2626',
+              backgroundColor: toastType === "success" ? "#16a34a" : "#dc2626",
               paddingVertical: 14,
               paddingHorizontal: 16,
               borderRadius: 12,
               zIndex: 9999,
-              shadowColor: '#000',
+              shadowColor: "#000",
               shadowOpacity: 0.25,
               shadowOffset: { width: 0, height: 2 },
               shadowRadius: 4,
@@ -346,9 +357,9 @@ export default function QrReader() {
           >
             <Text
               style={{
-                color: 'white',
-                fontWeight: 'bold',
-                textAlign: 'center',
+                color: "white",
+                fontWeight: "bold",
+                textAlign: "center",
                 fontSize: 16,
               }}
             >
@@ -394,11 +405,22 @@ export default function QrReader() {
 
       {showProductPanel && (lastScan || result || error) && (
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
           className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl"
-          style={{ maxHeight: '70%', zIndex: 20 }}
+          style={{ maxHeight: "70%", zIndex: 20 }}
         >
-          <View className="w-12 h-1 bg-gray-300 rounded-full self-center mt-3 mb-2" />
+          <TouchableOpacity
+            onPress={() => setShowProductPanel(false)}
+            style={{
+              position: "absolute",
+              top: 14,
+              right: 14,
+              padding: 6,
+              zIndex: 50,
+            }}
+          >
+            <Ionicons name="close" size={28} color="#555" />
+          </TouchableOpacity>
 
           <ScrollView
             className="px-5"
@@ -423,7 +445,7 @@ export default function QrReader() {
               />
             )}
 
-            {error === 'NOT_FOUND' && (
+            {error === "NOT_FOUND" && (
               <AddProductForm
                 newName={newName}
                 setNewName={setNewName}
@@ -443,7 +465,7 @@ export default function QrReader() {
               />
             )}
 
-            {error !== 'NOT_FOUND' && error && (
+            {error !== "NOT_FOUND" && error && (
               <View className="bg-red-50 border border-red-200 rounded-xl p-4 mt-4">
                 <Text className="text-red-600 text-center">{error}</Text>
               </View>
@@ -454,7 +476,7 @@ export default function QrReader() {
 
       {showStockModal && (
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
           className="absolute bottom-0 left-0 right-0"
           style={{ zIndex: 50 }}
         >
@@ -502,16 +524,16 @@ export default function QrReader() {
       {toastMessage && (
         <View
           style={{
-            position: 'absolute',
+            position: "absolute",
             bottom: 40,
             left: 20,
             right: 20,
-            backgroundColor: toastType === 'success' ? '#16a34a' : '#dc2626',
+            backgroundColor: toastType === "success" ? "#16a34a" : "#dc2626",
             paddingVertical: 14,
             paddingHorizontal: 16,
             borderRadius: 12,
             zIndex: 9999,
-            shadowColor: '#000',
+            shadowColor: "#000",
             shadowOpacity: 0.25,
             shadowOffset: { width: 0, height: 2 },
             shadowRadius: 4,
@@ -520,9 +542,9 @@ export default function QrReader() {
         >
           <Text
             style={{
-              color: 'white',
-              fontWeight: 'bold',
-              textAlign: 'center',
+              color: "white",
+              fontWeight: "bold",
+              textAlign: "center",
               fontSize: 16,
             }}
           >

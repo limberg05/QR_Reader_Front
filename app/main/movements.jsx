@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-} from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
+} from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 
-import { fetchMovementsPerProduct } from '../../services/movements';
-import { useProductStore } from '../../utils/productStore';
+import { fetchMovementsPerProduct } from "../../services/movements";
+import { useProductStore } from "../../utils/productStore";
 
 const Movements = () => {
   const selectedBarcode = useProductStore((state) => state.selectedBarcode);
@@ -89,8 +89,8 @@ const Movements = () => {
                   <Text
                     className={
                       movement.quantity < 0
-                        ? 'text-red-500 font-semibold'
-                        : 'text-green-600 font-semibold'
+                        ? "text-red-500 font-semibold"
+                        : "text-green-600 font-semibold"
                     }
                   >
                     {movement.quantity}
@@ -102,13 +102,13 @@ const Movements = () => {
                 <View>
                   <Text className="text-gray-500 text-xs">Usuario</Text>
                   <Text className="text-base font-medium">
-                    {movement.user_id}
+                    {movement.user_name}
                   </Text>
                 </View>
 
                 <View>
                   <Text className="text-gray-500 text-xs">Notas</Text>
-                  <Text className="text-base">{movement.notes ?? '—'}</Text>
+                  <Text className="text-base">{movement.notes ?? "—"}</Text>
                 </View>
               </View>
             </View>
@@ -131,7 +131,7 @@ const Movements = () => {
             <View className="flex-1 justify-center items-center px-6">
               <Text className="text-lg font-bold text-gray-700 text-center">
                 Escanea un producto en la pantalla de productos
-                {'\n'}para ver sus movimientos aquí.
+                {"\n"}para ver sus movimientos aquí.
               </Text>
             </View>
           )}
@@ -149,7 +149,7 @@ const Movements = () => {
                 <TouchableOpacity
                   disabled={loading}
                   className={`px-8 py-4 rounded-xl ${
-                    loading ? 'bg-blue-300' : 'bg-blue-600'
+                    loading ? "bg-blue-300" : "bg-blue-600"
                   }`}
                   onPress={getMovementsByProduct}
                 >
