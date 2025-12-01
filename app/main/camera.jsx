@@ -60,6 +60,7 @@ export default function QrReader() {
   const [showStockModal, setShowStockModal] = useState(false);
   const [newStockValue, setNewStockValue] = useState("");
   const [notes, setNotes] = useState("");
+  const [isUpdatingStock, setIsUpdatingStock] = useState(false);
 
   const [toastMessage, setToastMessage] = useState(null);
   const [toastType, setToastType] = useState("success");
@@ -160,11 +161,15 @@ export default function QrReader() {
   };
 
   const handleUpdateStock = async () => {
+    if (isUpdatingStock) return; // Prevenir múltiples clics
+
     try {
       if (!newStockValue.trim()) {
         showToast("Ingresa el nuevo stock", "error");
         return;
       }
+
+      setIsUpdatingStock(true);
 
       await updateStock(result.barcode, Number(newStockValue), notes);
 
@@ -183,6 +188,8 @@ export default function QrReader() {
     } catch (err) {
       setError("Error actualizando stock");
       showToast("Error actualizando el stock", "error");
+    } finally {
+      setIsUpdatingStock(false);
     }
   };
 
@@ -316,11 +323,14 @@ export default function QrReader() {
               />
 
               <TouchableOpacity
-                className="bg-blue-600 py-4 rounded-xl"
+                className={`py-4 rounded-xl ${
+                  isUpdatingStock ? "bg-blue-400" : "bg-blue-600"
+                }`}
                 onPress={handleUpdateStock}
+                disabled={isUpdatingStock}
               >
                 <Text className="text-center text-white font-bold">
-                  Guardar cambios
+                  {isUpdatingStock ? "Guardando..." : "Guardar cambios"}
                 </Text>
               </TouchableOpacity>
 
@@ -501,11 +511,14 @@ export default function QrReader() {
             />
 
             <TouchableOpacity
-              className="bg-blue-600 py-4 rounded-xl"
+              className={`py-4 rounded-xl ${
+                isUpdatingStock ? "bg-blue-400" : "bg-blue-600"
+              }`}
               onPress={handleUpdateStock}
+              disabled={isUpdatingStock}
             >
               <Text className="text-center text-white font-bold">
-                Guardar cambios
+                {isUpdatingStock ? "Guardando..." : "Guardar cambios"}
               </Text>
             </TouchableOpacity>
 
